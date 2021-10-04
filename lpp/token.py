@@ -39,7 +39,8 @@ def lookup_token_type(literal: str) -> TokenType:
 
     # Una variable keyword que es un diccionario que tiene como llaves strngs y como valores TokenType
     keywords: Dict[str, TokenType] = {
-        'variable': TokenType.LET
+        'variable': TokenType.LET,
+        'procedimiento': TokenType.FUNCTION,
     }
 
     # Miramos si es una palabra reservada de nuestro lenguaje, si no lo es, entonces es un identificadir (un nombre de variable p.ej)
