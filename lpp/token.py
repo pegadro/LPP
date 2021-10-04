@@ -4,24 +4,27 @@ from enum import (
     unique, # nos permite definir que nuestros enum son unicos
 )
 
-from typing import NamedTuple
+from typing import (
+    Dict,
+    NamedTuple
+)
 
 @unique
 class TokenType(Enum):
     ASSIGN = auto()
     COMMA = auto()
-    EOF = auto()
+    EOF = auto() # Enf Of File
     FUNCTION = auto()
-    IDENT = auto()
-    ILLEGAL = auto()
+    IDENT = auto() # Identificador
+    ILLEGAL = auto() # Cuando un caracter no pertenece al lenguaje
     INT = auto()
-    LBRACE = auto()
-    LET = auto()
-    LPAREN = auto()
-    PLUS = auto()
-    RBRACE = auto()
-    RPAREN = auto()
-    SEMICOLON = auto()
+    LBRACE = auto() # Llave izquierda {
+    LET = auto() # Definición de variables
+    LPAREN = auto() # Paréntesis izquierdo (
+    PLUS = auto() # Suma
+    RBRACE = auto() # Llave derecha 
+    RPAREN = auto() # Paréntesis derecho )
+    SEMICOLON = auto() # PUnto y coma
 
 
 class Token(NamedTuple):
@@ -30,3 +33,14 @@ class Token(NamedTuple):
 
     def __str__(self) -> str:
         return f'Type: {self.token_type}, Literal: {self.literal}'
+
+
+def lookup_token_type(literal: str) -> TokenType:
+
+    # Una variable keyword que es un diccionario que tiene como llaves strngs y como valores TokenType
+    keywords: Dict[str, TokenType] = {
+        'variable': TokenType.LET
+    }
+
+    # Miramos si es una palabra reservada de nuestro lenguaje, si no lo es, entonces es un identificadir (un nombre de variable p.ej)
+    return keywords.get(literal, TokenType.IDENT)
