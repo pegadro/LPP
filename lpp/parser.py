@@ -3,7 +3,8 @@ from typing import Optional
 from lpp.ast import (
     Identifier, 
     LetStatement, 
-    Program, 
+    Program,
+    ReturnStatement, 
     Statement)
 from typing import (
     List,
@@ -87,11 +88,26 @@ class Parser:
 
         return let_statement
 
+    def _parse_return_statement(self) -> Optional[ReturnStatement]:
+        assert self._current_token is not None
+        return_statement = ReturnStatement(token=self._current_token)
+
+        self._advance_tokens()
+
+        # TODO terminar cuando sepamos parsear expresiones
+
+        while self._current_token.token_type != TokenType.SEMICOLON:
+            self._advance_tokens()
+
+        return return_statement
+
 
     def _parse_statement(self) -> Optional[Statement]:
         assert self._current_token is not None
         # Si el token es LET significa que se quiere declarar una variable
         if self._current_token.token_type == TokenType.LET:
             return self._parse_let_statement()
+        elif self._current_token.token_type == TokenType.RETURN:
+            return self._parse_return_statement()
         else:
             return None
