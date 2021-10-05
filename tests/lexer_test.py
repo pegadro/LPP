@@ -1,5 +1,6 @@
 from unittest import TestCase
 from typing import List
+from lpp import token
 
 from lpp.token import (
     Token,
@@ -192,3 +193,27 @@ class LexerTest(TestCase):
         ]
 
         self.assertEquals(tokens, expected_tokends)
+
+    def test_two_character_operators(self) -> None:
+        source: str = '''
+            10 == 10;
+            10 != 9;
+        '''
+        lexer: Lexer = Lexer(source)
+
+        tokens: List[Token] = []
+        for i in range(8):
+            tokens.append(lexer.next_token())
+
+        expected_tokens: List[Token] = [
+            Token(TokenType.INT, '10'),
+            Token(TokenType.EQ, '=='),
+            Token(TokenType.INT, '10'),
+            Token(TokenType.SEMICOLON, ';'),
+            Token(TokenType.INT, '10'),
+            Token(TokenType.NOT_EQ, '!='),
+            Token(TokenType.INT, '9'),
+            Token(TokenType.SEMICOLON, ';'),
+        ]
+
+        self.assertEquals(tokens, expected_tokens)
