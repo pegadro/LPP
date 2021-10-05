@@ -1,18 +1,27 @@
 
-from typing import Optional
 from lpp.ast import (
+    Expression,
     Identifier, 
     LetStatement, 
     Program,
     ReturnStatement, 
     Statement)
+
 from typing import (
+    Callable,
+    Dict,
     List,
     Optional
 )
+
 from lpp.lexer import Lexer
 from lpp.token import Token, TokenType
 
+
+PrefixParseFn = Callable[[], Optional[Expression]]
+InfixParseFn = Callable[[Expression], Optional[Expression]]
+PrefixParseFns = Dict[TokenType, PrefixParseFn]
+InfixParseFns = Dict[TokenType, InfixParseFn]
 
 class Parser:
 
@@ -21,6 +30,9 @@ class Parser:
         self._current_token: Optional[Token] = None
         self._peek_token: Optional[Token] = None
         self._errors: List[str] = []
+
+        self._prefix_parse_fns: PrefixParseFns = self._register_prefix_fns()
+        self._infix_parse_fns: InfixParseFns = self._register_infix_fns()
 
         self._advance_tokens()
         self._advance_tokens()
@@ -111,3 +123,9 @@ class Parser:
             return self._parse_return_statement()
         else:
             return None
+
+    def _register_infix_fns(self) -> InfixParseFns:
+        return {}
+
+    def _register_prefix_fns(self) -> PrefixParseFns:
+        return {}
