@@ -1,8 +1,10 @@
-from lpp.lexer import Lexer
+
 from lpp.token import (
     Token,
     TokenType,
 )
+
+from lpp.lexer import Lexer
 
 EOF_TOKEN: Token = Token(TokenType.EOF, '')
 
