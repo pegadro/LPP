@@ -44,7 +44,7 @@ class ParserTest(TestCase):
             self.assertEqual(statement.token_literal(), 'variable')
             self.assertIsInstance(statement, LetStatement)
 
-    def test_names_in_let_statements(self) -> None:
+    def test_names_in_let_statement(self) -> None:
         source: str = '''
             variable x = 5;
             variable y = 10;
