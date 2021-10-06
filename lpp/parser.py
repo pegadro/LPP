@@ -214,7 +214,6 @@ class Parser:
         function.body = self._parse_block()
 
         return function
-
     
     def _parse_function_parameters(self) -> List[Identifier]:
         params: List[Identifier] = []
@@ -254,7 +253,7 @@ class Parser:
 
     def _parse_if(self) -> Optional[If]:
         assert self._current_token is not None
-        if_expression = If(self._current_token)
+        if_expression = If(token=self._current_token)
 
         # Si no tenemos después del If un parentesis izquierdo, se acabó
         if not self._expected_token(TokenType.LPAREN):
