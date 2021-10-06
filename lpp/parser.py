@@ -99,13 +99,19 @@ class Parser:
         return left_expression
 
     def _parse_expression_statement(self) -> Optional[ExpressionStatement]:
+        # Comprobamos que el current token no es None
         assert self._current_token is not None
-        expression_statement = ExpressionStatement(token=self._current_token)
 
+        # Creamos el ReturnStatement indicandole que el token es el actual
+        expression_statement = ExpressionStatement(token=self._current_token)
+        # Asignamos valor al expression
         expression_statement.expression = self._parse_expression(Precedence.LOWEST)
 
+        # Comprobamos si el siguiente token no es None
         assert self._peek_token is not None
+        # Si el token type del siguiente token es SEMICOLO
         if self._peek_token.token_type == TokenType.SEMICOLON:
+            # Avanzamos al siguiente token
             self._advance_tokens()
 
         return expression_statement
@@ -118,6 +124,7 @@ class Parser:
 
     def _parse_let_statement(self) -> Optional[LetStatement]:
         assert self._current_token is not None
+        # Creamos el LetStatement indicandole que el token es el actual
         let_statement = LetStatement(token=self._current_token)
 
         # En dado caso que el expected token sí haya sido un IDENT, procederemos a crear una instancia de Identifier con este identificador
@@ -156,9 +163,10 @@ class Parser:
 
     def _parse_statement(self) -> Optional[Statement]:
         assert self._current_token is not None
-        # Si el token es LET significa que se quiere declarar una variable
+        # Si el token es LET significa que se quiere declarar una variable (LetStatement)
         if self._current_token.token_type == TokenType.LET:
             return self._parse_let_statement()
+        # Si el token es RETURN significa que se quiere "regresar" (ReturnStatement)
         elif self._current_token.token_type == TokenType.RETURN:
             return self._parse_return_statement()
         else:
