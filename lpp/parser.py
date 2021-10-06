@@ -90,8 +90,10 @@ class Parser:
     def _parse_expression(self, precedence: Precedence) -> Optional[Expression]:
         assert self._current_token is not None
         try:
+            # Identifica que tipo de token tenemos presente y le da una función
             prefix_parse_fn = self._prefix_parse_fns[self._current_token.token_type]
         except KeyError:
+            # Si no hay un elemeneto con la llave del token type regresamos none
             return None
 
         left_expression = prefix_parse_fn()
