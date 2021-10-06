@@ -167,6 +167,17 @@ class Parser:
 
         return expression_statement
 
+    def _parse_grouped_expression(self) -> Optional[Expression]:
+        # Si estamos en el parentesis queremos ir al siguiente token
+        self._advance_tokens()
+
+        expression = self._parse_expression(Precedence.LOWEST)
+
+        if not self._expected_token(TokenType.RPAREN):
+            return None
+        
+        return expression
+
     def _parse_identifier(self) -> Identifier:
         assert self._current_token is not None
 
@@ -252,7 +263,6 @@ class Parser:
 
         return return_statement
 
-
     def _parse_statement(self) -> Optional[Statement]:
         assert self._current_token is not None
         # Si el token es LET significa que se quiere declarar una variable (LetStatement)
@@ -289,6 +299,7 @@ class Parser:
             TokenType.TRUE: self._parse_boolean,
             TokenType.IDENT: self._parse_identifier,
             TokenType.INT: self._parse_integer,
+            TokenType.LPAREN: self._parse_grouped_expression,
             TokenType.MINUS: self._parse_prefix_expression,
             TokenType.NEGATION: self._parse_prefix_expression,
         }
