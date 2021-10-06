@@ -324,7 +324,7 @@ class ParserTest(TestCase):
         # Test params
         self.assertEquals(len(function_literal.parameters), 2)
         self._test_literal_expression(function_literal.parameters[0], 'x')
-        self._test_literal_expression(function_literal.parameters[0], 'y')
+        self._test_literal_expression(function_literal.parameters[1], 'y')
 
         # Test body
         assert function_literal.body is not None
