@@ -4,6 +4,7 @@ from lpp.ast import (
     Expression,
     ExpressionStatement,
     Identifier, 
+    Integer,
     LetStatement, 
     Program,
     ReturnStatement, 
@@ -124,6 +125,22 @@ class Parser:
         return Identifier(token=self._current_token,
                         value=self._current_token.literal)
 
+    def _parse_integer(self) -> Optional[Integer]:
+        assert self._current_token is not None
+        integer = Integer(token=self._current_token)
+
+        try:
+            integer.value = int(self._current_token.literal)
+        except ValueError:
+            message = f'No se ha podido parsear {self._current_token.literal} ' + \
+                'como entero'
+            self._errors.append(message)
+
+            return None
+        
+        return integer
+
+
     def _parse_let_statement(self) -> Optional[LetStatement]:
         assert self._current_token is not None
         # Creamos el LetStatement indicandole que el token es el actual
@@ -180,4 +197,5 @@ class Parser:
     def _register_prefix_fns(self) -> PrefixParseFns:
         return {
             TokenType.IDENT: self._parse_identifier,
+            TokenType.INT: self._parse_integer
         }

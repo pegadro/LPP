@@ -6,7 +6,8 @@ from lpp.ast import (
     Program,
     LetStatement,
     ReturnStatement,
-    Identifier
+    Identifier,
+    Integer,
 )
 
 from typing import (
@@ -127,6 +128,23 @@ class ParserTest(TestCase):
         # Creamos una serie de test con el expression
         self._test_literal_expression(expression_statement.expression, 'foobar')
 
+    def test_integer_expressions(self) -> None:
+        source: str = '5;'
+        lexer: Lexer = Lexer(source)
+        parser: Parser = Parser(lexer)
+
+        program: Program = parser.parse_program()
+        # Si hay un error en el parser este tests no dirá que hay error
+        self._test_program_statements(parser, program)
+
+        # Hacemos que el primer statement del programa sea de tipo ExpressionStatement
+        expression_statement = cast(ExpressionStatement, program.statements[0])
+
+        # Nos aseguramos que la expresión no sea None, que es donde debería vivir el 5
+        assert expression_statement.expression is not None
+
+        self._test_literal_expression(expression_statement.expression, 5)
+
     def _test_program_statements(
                                 self,
                                 parser: Parser,
@@ -149,13 +167,15 @@ class ParserTest(TestCase):
         if value_type == str:
             # Volveremos a hacer otros tests, con el expression y el expected_value
             self._test_identifier(expression, expected_value)
+        elif value_type == int:
+            self._test_integer(expression, expected_value)
         else:
             # Lanzamos un error
             self.fail(f'Unhandled type of expression. Got={value_type}')
 
     def _test_identifier(self,
-                         expression: Expression,
-                         expected_value: str) -> None:
+                        expression: Expression,
+                        expected_value: str) -> None:
 
         # Comprobamos si la expression es una instancia de Identifier
         self.assertIsInstance(expression, Identifier)
@@ -166,3 +186,14 @@ class ParserTest(TestCase):
         self.assertEquals(identifier.value, expected_value)
         # Comprobamos que la literal del token sea el expected_value
         self.assertEquals(identifier.token.literal, expected_value)
+
+    def _test_integer(self,
+                    expression: Expression,
+                    expected_value: int) -> None:
+        # Comprobamos que la expresión sea un Integer en lugar de un Identifier
+        self.assertIsInstance(expression, Integer)
+
+        # Hacemos nuestro cast para que podamos acceder a value
+        integer = cast(Integer, expression)
+        self.assertEquals(integer.value, expected_value)
+        self.assertEquals(integer.token.literal, str(expected_value))
