@@ -3,6 +3,7 @@ from unittest import TestCase
 from lpp.ast import (
     Expression,
     ExpressionStatement,
+    Prefix,
     Program,
     LetStatement,
     ReturnStatement,
@@ -145,11 +146,47 @@ class ParserTest(TestCase):
 
         self._test_literal_expression(expression_statement.expression, 5)
 
+    def test_prefix_expression(self) -> None:
+        source: str = '!5; -15;'
+
+        lexer: Lexer = Lexer(source)
+        parser: Parser = Parser(lexer)
+
+        program: Program = parser.parse_program()
+
+        # Probamos nuestros program statements
+        self._test_program_statements(parser, program, expected_statement_count=2)
+
+        # Generamos un loop a lo largo de statements y también cuales son los valores que esperamos.
+        # zip nos permite generar un loop a lo largo de 2 listas o iterables.
+        # program.statements en la lista de la statements 
+        for statement, (expected_operator, expected_value) in zip(
+                program.statements, [('!', 5), ('-', 15)]):
+            # hacemos un cast para que se vuelva ExpressionStatement
+            statement = cast(ExpressionStatement, statement)
+            # Nos aseguramos que sea una instancia de prefijo
+            self.assertIsInstance(statement.expression, Prefix)
+
+            # Tornamos el expression un Prefix
+            prefix = cast(Prefix, statement.expression)
+            # Nos aseguramos que el operador que esperamos sea el operador que tiene el prefijo
+            self.assertEquals(prefix.operator, expected_operator)
+
+            # Nos aseguramos que el lado derecho del prefijo no sea None (osea, el valor)
+            assert prefix.right is not None
+
+            # Probamos que el lado derecho sea el expected_value
+            self._test_literal_expression(prefix.right, expected_value)
+
     def _test_program_statements(
                                 self,
                                 parser: Parser,
                                 program: Program,
                                 expected_statement_count: int = 1) -> None:
+
+        if parser.errors:
+            print(parser.errors)
+
         # Comprobamos que los errores del parser sean 0
         self.assertEquals(len(parser.errors), 0)
         # Comprobamos que el número de statements sea de 1 (foobar;)
