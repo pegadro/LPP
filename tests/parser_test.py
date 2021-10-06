@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from lpp.ast import (
+    Boolean,
     Expression,
     ExpressionStatement,
     Prefix,
@@ -180,6 +181,35 @@ class ParserTest(TestCase):
             # Probamos que el lado derecho sea el expected_value
             self._test_literal_expression(prefix.right, expected_value)
 
+    def test_boolean_expression(self) -> None:
+        source: str = 'verdadero; falso;'
+        
+        lexer: Lexer = Lexer(source)
+        parser: Parser = Parser(lexer)
+
+        program: Program = parser.parse_program()
+
+        self._test_program_statements(parser, program, expected_statement_count=2)
+
+        expected_values: List[bool] = [True, False]
+
+        for statement, expected_value in zip(program.statements, expected_values):
+            # Generamos un cast para poder acceder a expression
+            expression_statement = cast(ExpressionStatement, statement)
+
+            assert expression_statement.expression is not None
+            self._test_literal_expression(expression_statement.expression,
+                                            expected_value)
+
+    def _test_boolean(self,
+                    expression: Expression,
+                    expected_value: bool) -> None:
+        self.assertIsInstance(expression, Boolean)
+
+        boolean = cast(Boolean, expression)
+        self.assertEquals(boolean.value, expected_value)
+        self.assertEquals(boolean.token.literal, 'verdadero' if expected_value else 'falso')
+
     def test_infix_expressions(self) -> None:
         source: str = '''
             5 + 5;
@@ -265,6 +295,8 @@ class ParserTest(TestCase):
             self._test_identifier(expression, expected_value)
         elif value_type == int:
             self._test_integer(expression, expected_value)
+        elif value_type == bool:
+            self._test_boolean(expression, expected_value)
         else:
             # Lanzamos un error
             self.fail(f'Unhandled type of expression. Got={value_type}')
