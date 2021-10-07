@@ -5,6 +5,8 @@ from lpp.ast import Program
 from lpp.lexer import Lexer
 from lpp.parser import Parser
 
+import readline
+
 from lpp.token import (
     Token,
     TokenType,
