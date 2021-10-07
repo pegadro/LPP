@@ -2,6 +2,7 @@
 from typing import List
 
 from lpp.ast import Program
+from lpp.evaluator import evaluate
 from lpp.lexer import Lexer
 from lpp.parser import Parser
 
@@ -32,4 +33,7 @@ def start_repl() -> None:
             _print_parse_errors(parser.errors)
             continue
             
-        print(program)
+        evaluated = evaluate(program)
+
+        if evaluated is not None:
+            print(evaluated.inspect())
