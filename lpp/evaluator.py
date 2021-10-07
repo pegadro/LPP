@@ -10,12 +10,13 @@ import lpp.ast as ast
 
 from lpp.object import (
     Boolean,
+    Error,
+    Environment,
     Integer,
     Null,
     Object,
     ObjectType,
-    Return,
-    Error,
+    Return,   
 )
 
 
@@ -29,18 +30,18 @@ _UNKNOW_PREFIX_OPERATION = 'Operador desconocido: {}{}'
 _UNKNOW_INFIX_OPERATION = 'Operador desconocido: {} {} {}'
 
 
-def evaluate(node: ast.ASTNode) -> Optional[Object]:
+def evaluate(node: ast.ASTNode, env: Environment) -> Optional[Object]:
     node_type: Type = type(node)
 
     if node_type == ast.Program:
         node = cast(ast.Program, node)
 
-        return _evaluate_program(node)
+        return _evaluate_program(node, env)
     elif node_type == ast.ExpressionStatement:
         node = cast(ast.ExpressionStatement, node)
 
         assert node.expression is not None
-        return evaluate(node.expression)
+        return evaluate(node.expression, env)
     elif node_type == ast.Integer:
         node = cast(ast.Integer, node)
 
@@ -55,7 +56,7 @@ def evaluate(node: ast.ASTNode) -> Optional[Object]:
         node = cast(ast.Prefix, node)
 
         assert node.right is not None
-        right = evaluate(node.right)
+        right = evaluate(node.right, env)
 
         assert right is not None
         return _evaluate_prefix_expression(node.operator, right)
@@ -63,24 +64,24 @@ def evaluate(node: ast.ASTNode) -> Optional[Object]:
         node = cast(ast.Infix, node)
 
         assert node.left is not None and node.right is not None
-        left = evaluate(node.left)
-        right = evaluate(node.right)
+        left = evaluate(node.left, env)
+        right = evaluate(node.right, env)
 
         assert right is not None and left is not None
         return _evaluate_infix_expression(node.operator, left, right)   
     elif node_type == ast.Block:
         node = cast(ast.Block, node)
 
-        return _evaluate_block_statement(node)
+        return _evaluate_block_statement(node, env)
     elif node_type == ast.If:
         node = cast(ast.If, node)
 
-        return _evaluate_if_expression(node)
+        return _evaluate_if_expression(node, env)
     elif node_type == ast.ReturnStatement:
         node = cast(ast.ReturnStatement, node)
 
         assert node.return_value is not None
-        value = evaluate(node.return_value)
+        value = evaluate(node.return_value, env)
 
         assert value is not None
         return Return(value)
@@ -88,11 +89,11 @@ def evaluate(node: ast.ASTNode) -> Optional[Object]:
     return None
 
 
-def _evaluate_program(program: ast.Program) -> Optional[Object]:
+def _evaluate_program(program: ast.Program, env: Environment) -> Optional[Object]:
     result: Optional[Object] = None
 
     for statement in program.statements:
-        result = evaluate(statement)
+        result = evaluate(statement, env)
 
         if type(result) == Return:
             result = cast(Return, result)
@@ -114,11 +115,11 @@ def _evaluate_bang_operator_expression(right: Object) -> Object:
         return FALSE
 
 
-def _evaluate_block_statement(block: ast.Block) -> Optional[Object]:
+def _evaluate_block_statement(block: ast.Block, env: Environment) -> Optional[Object]:
     result: Optional[Object] = None
 
     for statement in block.statements:
-        result = evaluate(statement)
+        result = evaluate(statement, env)
 
         if result is not None and (result.type() == ObjectType.RETURN or result.type() == ObjectType.ERROR):
             return result
@@ -126,16 +127,16 @@ def _evaluate_block_statement(block: ast.Block) -> Optional[Object]:
     return result
 
 
-def _evaluate_if_expression(if_expression: ast.If) -> Optional[Object]:
+def _evaluate_if_expression(if_expression: ast.If, env: Environment) -> Optional[Object]:
     assert if_expression.condition is not None
-    condition = evaluate(if_expression.condition)
+    condition = evaluate(if_expression.condition, env)
 
     assert condition is not None
     if _is_truthy(condition):
         assert if_expression.consequence is not None
-        return evaluate(if_expression.consequence)
+        return evaluate(if_expression.consequence, env)
     elif if_expression.alternative is not None:
-        return evaluate(if_expression.alternative)
+        return evaluate(if_expression.alternative, env)
     else:
         return NULL
 

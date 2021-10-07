@@ -15,8 +15,8 @@ from lpp.object import (
     Integer,
     Object,
     Boolean,
-    Null,
     Error,
+    Environment
 )
 from lpp.parser import Parser
 
@@ -157,6 +157,8 @@ class EvaluatorTest(TestCase):
                  }
              ''',
              'Operador desconocido: BOOLEAN / BOOLEAN'),
+             ('foobar;',
+             'Identificador no encontrado: foobar')
         ]
 
         for source, expected in tests:
@@ -167,6 +169,18 @@ class EvaluatorTest(TestCase):
             evaluated = cast(Error, evaluated)
             self.assertEquals(evaluated.message, expected)
 
+    def test_assignment_evaluation(self) -> None:
+        tests: List[Tuple[str, int]] = [
+            ('variable a = 5; a;', 5),
+            ('variable a = 5 * 5; a;', 25),
+            ('variable a = 5; variable b = a; b;', 5),
+            ('variable a = 5; variable b = a; variable c = a + b + 5; c;', 15),
+        ]
+
+        for source, expected in tests:
+            evaluated = self._evaluate_tests(source)
+            self._test_integer_object(evaluated, expected)
+
     def _test_null_object(self, evaluated: Object) -> None:
         self.assertEquals(evaluated, NULL)
 
@@ -174,8 +188,9 @@ class EvaluatorTest(TestCase):
         lexer: Lexer = Lexer(source)
         parser: Parser = Parser(lexer)
         program: Program = parser.parse_program()
+        env: Environment = Environment()
 
-        evaluated = evaluate(program)
+        evaluated = evaluate(program, env)
 
         assert evaluated is not None
         return evaluated
