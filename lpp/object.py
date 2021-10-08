@@ -6,12 +6,21 @@ from enum import (
     auto,
     Enum
 )
-from typing import Dict
+from typing import (
+    Dict,
+    List,
+)
+
+from lpp.ast import (
+    Block,
+    Identifier
+)
 
 
 class ObjectType(Enum):
     BOOLEAN = auto()
     INTEGER = auto()
+    FUNCTION = auto()
     NULL = auto()
     RETURN = auto()
     ERROR = auto()
@@ -96,3 +105,21 @@ class Environment(Dict):
 
     def __delitem__(self, key):
         del self._store[key]
+
+
+class Function(Object):
+    def __init__(self,
+                parameters: List[Identifier],
+                body: Block,
+                env: Environment) -> None:
+        self.parameters = parameters
+        self.body = body
+        self.env = env
+    
+    def type(self) -> ObjectType:
+        return ObjectType.FUNCTION
+    
+    def inspect(self) -> str:
+        params: str = ', '.join([str(param) for param in self.parameters])
+
+        return 'procedimiento({}) {{\n {}\n}}'.format(params, str(self.body))
