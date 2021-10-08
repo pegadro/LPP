@@ -37,8 +37,8 @@ class TokenType(Enum):
     RETURN = auto()
     RPAREN = auto() # Paréntesis derecho )
     SEMICOLON = auto() # PUnto y coma
+    STRING = auto()
     TRUE = auto()
-
 
 
 class Token(NamedTuple):

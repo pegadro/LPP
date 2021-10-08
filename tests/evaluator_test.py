@@ -17,7 +17,8 @@ from lpp.object import (
     Boolean,
     Error,
     Environment,
-    Function
+    Function,
+    String
 )
 from lpp.parser import Parser
 
@@ -227,6 +228,55 @@ class EvaluatorTest(TestCase):
         for source, expected in tests:
             evaluated = self._evaluate_tests(source)
             self._test_integer_object(evaluated, expected)
+
+    def test_string_evaluation(self) -> None:
+        tests: List[Tuple[str, str]] = [
+            ('"Hello world!"', 'Hello world!'),
+            ('procedimiento() { regresa "Platzi es genial"; }()',
+             'Platzi es genial'),
+        ]
+
+        for source, expected in tests:
+            evaluated = self._evaluate_tests(source)
+            self.assertIsInstance(evaluated, String)
+
+            evaluated = cast(String, evaluated)
+            self.assertEquals(evaluated.value, expected)
+
+    # def test_string_concatenation(self) -> None:
+    #     tests: List[Tuple[str, str]] = [
+    #         ('"Foo" + "bar";', 'Foobar'),
+    #         ('"Hello," + " " + "world!"', 'Hello, world!'),
+    #         ('''
+    #              variable saludo = procedimiento(nombre) {
+    #                  regresa "Hola " + nombre + "!";
+    #              };
+    #              saludo("David");
+    #           ''',
+    #           'Hola David!'),
+    #     ]
+
+    #     for source, expected in tests:
+    #         evaluated = self._evaluate_tests(source)
+    #         self._test_string_object(evaluated, expected)
+
+    # def test_string_comparison(self) -> None:
+    #     tests: List[Tuple[str, bool]] = [
+    #         ('"a" == "a"', True),
+    #         ('"a" != "a"', False),
+    #         ('"a" == "b"', False),
+    #         ('"a" != "b"', True),
+    #     ]
+
+    #     for source, expected in tests:
+    #         evaluated = self._evaluate_tests(source)
+    #         self._test_boolean_object(evaluated, expected)
+
+    # def _test_string_object(self, evaluated: Object, expected: str) -> None:
+    #     self.assertIsInstance(evaluated, String)
+
+    #     evaluated = cast(String, evaluated)
+    #     self.assertEquals(evaluated.value, expected)
 
     def _test_null_object(self, evaluated: Object) -> None:
         self.assertEquals(evaluated, NULL)

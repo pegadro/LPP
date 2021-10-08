@@ -15,7 +15,8 @@ from lpp.ast import (
     Prefix,
     Program,
     ReturnStatement, 
-    Statement
+    Statement,
+    StringLiteral,
 )
 
 from typing import (
@@ -414,6 +415,11 @@ class Parser:
         else:
             return self._parse_expression_statement()
 
+    def _parse_string(self) -> Expression:
+        assert self._current_token is not None
+        return StringLiteral(token=self._current_token,
+                            value=self._current_token.literal)
+
     def _peek_precedence(self) -> Precedence:
         assert self._peek_token is not None
         try:
@@ -445,4 +451,5 @@ class Parser:
             TokenType.LPAREN: self._parse_grouped_expression,
             TokenType.MINUS: self._parse_prefix_expression,
             TokenType.NEGATION: self._parse_prefix_expression,
+            TokenType.STRING: self._parse_string,
         }
